@@ -37,6 +37,49 @@ func main() {
 		log.Fatal(err)
 	}
 
+	for true {
+		var inputCommand string
+		fmt.Scanln(&inputCommand)
+		if inputCommand == "SetDTROn" {
+			controlPanelPortName.SetDTR(true)
+		} else if inputCommand == "SetDTROff" {
+			controlPanelPortName.SetDTR(false)
+		} else if inputCommand == "ReadBodyValue" {
+			_, err := bottleBodyPortName.Write([]byte("GA00\r\n"))
+			if err != nil {
+				log.Fatal(err)
+			}
+			for {
+				ReadPortOutput(bottleBodyPortName, buff)
+			}
+		} else if inputCommand == "Help" {
+			println("SetDTROn")
+			println("SetDTROff")
+			println("ReadBodyValue")
+			println("ReadBottomValue")
+			println("Help")
+			println("Break")
+		} else if inputCommand == "Break" {
+			break
+		} else if inputCommand == "ReadBottomValue" {
+			_, err := bottleBottomPortName.Write([]byte("GA00\r\n"))
+			if err != nil {
+				log.Fatal(err)
+			}
+			for {
+				ReadPortOutput(bottleBottomPortName, buff)
+			}
+		}
+	}
+}
+
+func ReadPortOutput(bottleBodyPortName serial.Port, buff []byte) {
+	n, err := bottleBodyPortName.Read(buff)
+	if err != nil {
+		log.Fatal(err)
+	}
+	println(string(buff[:n]))
+}
 
 func setCOMPort(ports []string, section string) string {
 	println("Please set the " + section + " com port")
